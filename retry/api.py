@@ -11,7 +11,7 @@ logging_logger = logging.getLogger(__name__)
 
 
 def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1, jitter=0,
-                     logger=logging_logger, callback_between=None):
+                     logger=logging_logger, callback_between=lambda:None):
     """
     Executes a function and retries it if it failed.
 
@@ -40,8 +40,7 @@ def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None,
             if logger is not None:
                 logger.warning('%s, retrying in %s seconds...', e, _delay)
 
-            if callback_between:
-                callback_between()
+            callback_between()
 
             time.sleep(_delay)
             _delay *= backoff
@@ -56,7 +55,7 @@ def __retry_internal(f, exceptions=Exception, tries=-1, delay=0, max_delay=None,
 
 
 def retry(exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1, jitter=0, logger=logging_logger,
-          callback_between=None,
+          callback_between=lambda:None,
           callback_between_args=[],
           callback_between_kwargs={}):
     """Returns a retry decorator.
@@ -90,9 +89,9 @@ def retry(exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1, ji
 def retry_call(f, fargs=None, fkwargs=None, exceptions=Exception, tries=-1, delay=0, max_delay=None, backoff=1,
                jitter=0,
                logger=logging_logger,
-               callback_between=None,
-               callback_between_args=None,
-               callback_between_kwargs=None):
+               callback_between=lambda:None,
+               callback_between_args=[],
+               callback_between_kwargs={}):
     """
     Calls a function and re-executes it if it failed.
 
